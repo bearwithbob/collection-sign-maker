@@ -178,7 +178,9 @@ function App() {
           <div className="card shadow-sm border-0">
             <div className="card-body">
               <h1 className="mt-0">Collection sign maker</h1>
-
+              <p>
+                This tool is compatible with <b>Google Chrome.</b>
+              </p>
               <h2 className="">Layout</h2>
 
               <div className="mb-3">
@@ -276,9 +278,12 @@ function App() {
                   </div>
                 </>
               )}
-
+              <h2 className="">Ready to print?</h2>
+              <p>
+                In the print window, make sure the <b>Background graphics</b> option is checked.
+              </p>
               <button type="button" className="btn btn-red w-100" onClick={handlePrint}>
-                Print Sign
+                Print sign
               </button>
             </div>
           </div>
