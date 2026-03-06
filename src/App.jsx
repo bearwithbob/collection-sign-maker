@@ -203,7 +203,7 @@ function App() {
                 </select>
               </div>
 
-              <h2 className="">Collection Information</h2>
+              <h2 className="">Collection information</h2>
 
               <div className="mb-3">
                 <label className="form-label" htmlFor="collection-text">
@@ -228,13 +228,13 @@ function App() {
               {visibleRanges.map((range, index) => (
                 <div className="row g-2 mb-3" key={`range-${index}`}>
                   <div className="col-12">
-                    <h3 className="h4">{isFull ? "Call Number Range" : `Range ${index + 1}`}</h3>
+                    <h3 className="h4">{isFull ? "Call number range" : `Call number range ${index + 1}`}</h3>
                   </div>
                   <div className="col-12">
                     <label className="form-label" htmlFor={`begin-${index}`}>
                       Call number begin
                     </label>
-                    <input id={`begin-${index}`} type="text" className="form-control" value={range.begin} onChange={(event) => handleRangeChange(index, "begin", event.target.value)} placeholder="Begin" />
+                    <input id={`begin-${index}`} type="text" className="form-control mb-2" value={range.begin} onChange={(event) => handleRangeChange(index, "begin", event.target.value)} placeholder="Begin" />
                   </div>
                   <div className="col-12">
                     <label className="form-label" htmlFor={`end-${index}`}>
@@ -247,36 +247,46 @@ function App() {
 
               {isFull && (
                 <>
-                  <h2 className="mb-2">QR Codes</h2>
+                  <h2 className="mb-2">Links</h2>
                   <p className="mb-4">
                     Contact <a href="web-support@lib.arizona.edu">Web Support</a> to request a short link that starts with <code>lib.arizona.edu/s/</code>.
                   </p>
                   <div className="mb-3">
                     <label className="form-label" htmlFor="qr-1-title">
-                      QR code 1 link title
+                      Link 1 title
                     </label>
                     <input id="qr-1-title" type="text" className="form-control" value={qrTitle1} onChange={(event) => setQrTitle1(event.target.value)} placeholder="Library search" />
                   </div>
 
                   <div className="mb-3">
                     <label className="form-label" htmlFor="qr-1-path">
-                      QR code 1 URL (second line)
+                      Link 1 URL
                     </label>
-                    <input id="qr-1-path" type="text" className="form-control" value={qrPath1} onChange={(event) => setQrPath1(normalizeQrPath(event.target.value))} placeholder="call-number-guide" />
+                    <div class="input-group">
+                      <span class="input-group-text" id="inputGroup-sizing-default">
+                        lib.arizona.edu/s/
+                      </span>
+                      <input id="qr-1-path" type="text" className="form-control" value={qrPath1} onChange={(event) => setQrPath1(normalizeQrPath(event.target.value))} placeholder="call-number-guide" />
+                    </div>
                   </div>
 
-                  <div className="mb-4">
+                  <div className="mb-3">
                     <label className="form-label" htmlFor="qr-2-title">
-                      QR code 2 link title
+                      Link 2 title
                     </label>
                     <input id="qr-2-title" type="text" className="form-control" value={qrTitle2} onChange={(event) => setQrTitle2(event.target.value)} placeholder="Call number guide" />
                   </div>
 
-                  <div className="mb-4">
+                  <div>
                     <label className="form-label" htmlFor="qr-2-path">
-                      QR code 2 URL (second line)
+                      Link 2 URL
                     </label>
-                    <input id="qr-2-path" type="text" className="form-control" value={qrPath2} onChange={(event) => setQrPath2(normalizeQrPath(event.target.value))} placeholder="childrens-literature" />
+                    <div class="input-group">
+                      <span class="input-group-text" id="inputGroup-sizing-default">
+                        lib.arizona.edu/s/
+                      </span>
+                      <input id="qr-2-path" type="text" className="form-control" value={qrPath2} onChange={(event) => setQrPath2(normalizeQrPath(event.target.value))} placeholder="childrens-literature" />
+                    </div>
                   </div>
                 </>
               )}
