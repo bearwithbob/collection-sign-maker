@@ -136,6 +136,7 @@ function App() {
 
   const isFull = layout === LAYOUTS.FULL;
   const isCurated = collectionType === COLLECTIONS.CURATED;
+  const showCollectionField = isFull || isCurated;
 
   const labelForCollectionText = isCurated ? "Collection name" : "Subject";
 
@@ -205,25 +206,27 @@ function App() {
 
               <h2 className="">Collection information</h2>
 
-              <div className="mb-3">
-                <label className="form-label" htmlFor="collection-text">
-                  {labelForCollectionText}
-                </label>
-                {isFull && !isCurated ? (
-                  <>
-                    {regularSubjectsForInput.map((subject, index) => (
-                      <input key={`subject-field-${index}`} id={index === 0 ? "collection-text" : `collection-text-${index + 1}`} type="text" className="form-control mb-2" value={subject} onChange={(event) => handleRegularSubjectChange(index, event.target.value)} placeholder={index === 0 ? "e.g., Language & literature" : `Subject ${index + 1}`} />
-                    ))}
-                    {regularSubjectCount < 3 && (
-                      <button type="button" className="btn btn-add-subject btn-outline-secondary mt-1" onClick={handleAddRegularSubjectField}>
-                        Add subject
-                      </button>
-                    )}
-                  </>
-                ) : (
-                  <input id="collection-text" type="text" className="form-control" value={collectionText} onChange={(event) => setCollectionText(event.target.value)} placeholder={isCurated ? "e.g., Books That Matter" : "e.g., Science"} />
-                )}
-              </div>
+              {showCollectionField && (
+                <div className="mb-3">
+                  <label className="form-label" htmlFor="collection-text">
+                    {labelForCollectionText}
+                  </label>
+                  {isFull && !isCurated ? (
+                    <>
+                      {regularSubjectsForInput.map((subject, index) => (
+                        <input key={`subject-field-${index}`} id={index === 0 ? "collection-text" : `collection-text-${index + 1}`} type="text" className="form-control mb-2" value={subject} onChange={(event) => handleRegularSubjectChange(index, event.target.value)} placeholder={index === 0 ? "e.g., Language & literature" : `Subject ${index + 1}`} />
+                      ))}
+                      {regularSubjectCount < 3 && (
+                        <button type="button" className="btn btn-add-subject btn-outline-secondary mt-1" onClick={handleAddRegularSubjectField}>
+                          Add subject
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <input id="collection-text" type="text" className="form-control" value={collectionText} onChange={(event) => setCollectionText(event.target.value)} placeholder={isCurated ? "e.g., Books That Matter" : "e.g., Science"} />
+                  )}
+                </div>
+              )}
 
               {visibleRanges.map((range, index) => (
                 <div className="row g-2 mb-3" key={`range-${index}`}>

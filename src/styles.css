@@ -220,8 +220,8 @@ body {
   width: min(100%, 600px);
   margin: 0 auto;
   padding: 72px;
-  --card-stack-width: min(360px, 100%);
-  --card-stack-track-height: calc(100% / 3);
+  --card-stack-width: 384px;
+  --card-stack-track-height: 216px;
 }
 
 .sign-card-regular {
@@ -269,14 +269,13 @@ body {
   display: block;
   font-family: "IBM Plex Serif", Georgia, serif;
   color: black;
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 400;
+  line-height: 1.2;
   margin: 0 0 0.5rem;
   max-width: none;
   overflow: hidden;
-  padding: 0.35rem 0.6rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  padding: 2px 1px;
   width: 100%;
 }
 
@@ -333,8 +332,11 @@ body {
     width: 8in;
     height: 10in;
     padding: calc(72px * var(--print-scale));
-    --card-stack-width: calc(360px * var(--print-scale));
+    margin-top: -24px !important; /* Balance invisible top margin */
+    --card-stack-width: calc(384px * var(--print-scale));
+    --card-stack-track-height: calc(216px * var(--print-scale));
   }
+
   /* Convert screen px-based typography/spacing to print-equivalent sizing. */
 
   .sign-card .card-stack {
