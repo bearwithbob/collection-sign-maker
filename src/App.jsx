@@ -372,17 +372,18 @@ function PrintPreview({ isFull, isCurated, collectionText, regularSubjectsForPre
   }
 
   return (
-    <article className="sign sign-card">
-      <header className="sign-header">University Libraries</header>
-      <section className="card-grid">
-        {ranges.map((range, index) => (
-          <div className="card-row" key={`card-row-${index}`}>
-            {isCurated && <p className="card-collection">{collectionText || "Collection Name"}</p>}
-            <p className="card-range">
-              {range.begin || "BEGIN"} - {range.end || "END"}
-            </p>
-          </div>
-        ))}
+    <article className={`sign sign-card ${isCurated ? "sign-card-curated" : "sign-card-regular"}`}>
+      <section className="card-stack">
+        <div className="card-grid">
+          {ranges.map((range, index) => (
+            <div className="card-row" key={`card-row-${index}`}>
+              {isCurated && <p className="card-collection">{collectionText || "Collection Name"}</p>}
+              <p className="card-range">{range.begin || "PL 216 S58 v.47 p.2"}</p>
+              <p className="card-call-to">to</p>
+              <p className="card-range">{range.end || "PL 2658 E3 S25"}</p>
+            </div>
+          ))}
+        </div>
       </section>
     </article>
   );

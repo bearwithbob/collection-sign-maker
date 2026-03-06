@@ -216,44 +216,84 @@ body {
 }
 
 .sign-card {
-  aspect-ratio: 8.5 / 5.5;
-  width: min(100%, 700px);
+  aspect-ratio: 8.5 / 11;
+  width: min(100%, 600px);
   margin: 0 auto;
+  padding: 72px;
+  --card-stack-width: min(360px, 100%);
+  --card-stack-track-height: calc(100% / 3);
+}
+
+.sign-card-regular {
+  --card-stack-border: var(--red);
+}
+
+.sign-card-curated {
+  --card-stack-border: var(--azurite);
+}
+
+.card-stack {
+  align-items: stretch;
+  border-left: 12px solid var(--card-stack-border);
+  border-right: 12px solid var(--card-stack-border);
+  display: flex;
+  flex: 1;
+  margin: 0 auto;
+  width: var(--card-stack-width);
 }
 
 .card-grid {
   display: grid;
-  gap: 0;
-  grid-template-rows: repeat(3, 1fr);
+  /* gap: 0.4rem; */
+  grid-template-rows: repeat(3, var(--card-stack-track-height));
   height: 100%;
+  width: 100%;
 }
 
 .card-row {
   align-items: center;
-  border-top: 1px solid #d6d6d6;
+  background: white;
+  border-left: 24px solid var(--card-stack-border);
+  border-right: 24px solid var(--card-stack-border);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 0.75rem 1.2rem;
+  min-height: 0;
+  overflow: hidden;
   text-align: center;
 }
 
-.card-row:first-child {
-  border-top: none;
-}
-
 .card-collection {
-  color: #5f6a77;
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0 0 0.3rem;
-  text-transform: uppercase;
+  background: var(--gray200);
+  box-sizing: border-box;
+  display: block;
+  font-family: "IBM Plex Serif", Georgia, serif;
+  color: black;
+  font-size: 26px;
+  font-weight: 400;
+  margin: 0 0 0.5rem;
+  max-width: none;
+  overflow: hidden;
+  padding: 0.35rem 0.6rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
 }
 
 .card-range {
-  font-size: clamp(1.1rem, 2.8vw, 1.8rem);
-  font-weight: 700;
+  font-family: "IBM Plex Sans", "proxima-nova", sans-serif;
+  font-size: 28px;
+  font-weight: 500;
   margin: 0;
+  max-width: 100%;
+  line-height: 1.2;
+}
+
+.card-call-to {
+  font-family: "IBM Plex Sans", "proxima-nova", sans-serif;
+  font-size: 28px;
+  color: var(--gray600);
+  margin: 8px auto;
 }
 
 .print-only {
@@ -291,9 +331,32 @@ body {
 
   .sign-card {
     width: 8in;
-    height: 5in;
+    height: 10in;
+    padding: calc(72px * var(--print-scale));
+    --card-stack-width: calc(360px * var(--print-scale));
   }
   /* Convert screen px-based typography/spacing to print-equivalent sizing. */
+
+  .sign-card .card-stack {
+    border-left-width: calc(12px * var(--print-scale));
+    border-right-width: calc(12px * var(--print-scale));
+  }
+
+  .sign-card .card-row {
+    border-left-width: calc(24px * var(--print-scale));
+    border-right-width: calc(24px * var(--print-scale));
+  }
+
+  .sign-card .card-collection {
+    font-size: calc(26px * var(--print-scale));
+    margin-bottom: calc(8px * var(--print-scale));
+    padding: calc(6px * var(--print-scale)) calc(10px * var(--print-scale));
+  }
+
+  .sign-card .card-range {
+    font-size: calc(28px * var(--print-scale));
+    line-height: 1.2;
+  }
 
   .sign-full .full-layout {
     padding: calc(24px * var(--print-scale));
