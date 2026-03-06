@@ -137,7 +137,7 @@ function App() {
   const isFull = layout === LAYOUTS.FULL;
   const isCurated = collectionType === COLLECTIONS.CURATED;
 
-  const labelForCollectionText = isCurated ? "Collection Name" : "Subject";
+  const labelForCollectionText = isCurated ? "Collection name" : "Subject";
 
   const visibleRanges = useMemo(() => {
     if (isFull) return [ranges[0]];
@@ -177,9 +177,9 @@ function App() {
         <section className="col-12 col-lg-5">
           <div className="card shadow-sm border-0">
             <div className="card-body">
-              <h1 className="mt-0">Collection sign maker</h1>
+              <h1 className="mt-0 mb-2">Collection sign maker</h1>
               <p>
-                This tool is compatible with <b>Google Chrome.</b>
+                This tool is compatible with <b>Google Chrome</b> on a desktop.
               </p>
               <h2 className="">Layout</h2>
 
@@ -215,7 +215,7 @@ function App() {
                       <input key={`subject-field-${index}`} id={index === 0 ? "collection-text" : `collection-text-${index + 1}`} type="text" className="form-control mb-2" value={subject} onChange={(event) => handleRegularSubjectChange(index, event.target.value)} placeholder={index === 0 ? "e.g., Language & literature" : `Subject ${index + 1}`} />
                     ))}
                     {regularSubjectCount < 3 && (
-                      <button type="button" className="btn btn-outline-secondary btn-sm" onClick={handleAddRegularSubjectField}>
+                      <button type="button" className="btn btn-add-subject btn-outline-secondary mt-1" onClick={handleAddRegularSubjectField}>
                         Add subject
                       </button>
                     )}
@@ -247,8 +247,10 @@ function App() {
 
               {isFull && (
                 <>
-                  <h2 className="">QR Codes</h2>
-
+                  <h2 className="mb-2">QR Codes</h2>
+                  <p className="mb-4">
+                    Contact <a href="web-support@lib.arizona.edu">Web Support</a> to request a short link that starts with <code>lib.arizona.edu/s/</code>.
+                  </p>
                   <div className="mb-3">
                     <label className="form-label" htmlFor="qr-1-title">
                       QR code 1 link title
@@ -278,8 +280,8 @@ function App() {
                   </div>
                 </>
               )}
-              <h2 className="">Ready to print?</h2>
-              <p>
+              <h2 className="mb-2">Ready to print?</h2>
+              <p className="mb-4">
                 In the print window, make sure the <b>Background graphics</b> option is checked.
               </p>
               <button type="button" className="btn btn-red w-100" onClick={handlePrint}>
@@ -290,6 +292,7 @@ function App() {
         </section>
 
         <section className="col-12 col-lg-7">
+          <h2 className="h4 mt-3 mb-4 text-center">Print preview</h2>
           <PrintPreview isFull={isFull} isCurated={isCurated} collectionText={collectionText} regularSubjectsForPreview={regularSubjectsForPreview} ranges={visibleRanges} qr1Url={buildLibraryUrl(qrPath1)} qr2Url={buildLibraryUrl(qrPath2)} qr1Path={normalizeQrPath(qrPath1)} qr2Path={normalizeQrPath(qrPath2)} qr1Label={qrTitle1 || DEFAULT_QR_1_TITLE} qr2Label={qrTitle2 || DEFAULT_QR_2_TITLE} />
         </section>
       </div>
