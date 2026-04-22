@@ -53,12 +53,63 @@ function splitCallNumber(value) {
   };
 }
 
+// Library of Congress Classification mapping
+const LOC_CLASSIFICATIONS = {
+  A: "General Works",
+  B: "Philosophy, Psychology, Religion",
+  C: "Auxiliary Sciences of History",
+  D: "World History",
+  E: "History of America",
+  F: "History of the Americas",
+  G: "Geography, Anthropology, and Recreation",
+  H: "Social Sciences",
+  J: "Political Science",
+  K: "Law",
+  L: "Education",
+  M: "Music",
+  N: "Fine Arts",
+  P: "Language and Literature",
+  Q: "Science",
+  R: "Medicine",
+  S: "Agriculture",
+  T: "Technology",
+  U: "Military Science",
+  V: "Naval Science",
+  Z: "Bibliography, Library Science, and General Information",
+};
+
+// Extract first letter from call number
+function getCallNumberLetter(callNumber) {
+  if (!callNumber || typeof callNumber !== "string") return null;
+  const trimmed = callNumber.trim();
+  if (!trimmed) return null;
+  const firstLetter = trimmed.charAt(0).toUpperCase();
+  return LOC_CLASSIFICATIONS[firstLetter] ? firstLetter : null;
+}
+
+// Get all subjects between two letters (inclusive)
+function getSubjectsBetweenLetters(beginLetter, endLetter) {
+  if (!beginLetter || !endLetter) return [];
+  
+  const letters = Object.keys(LOC_CLASSIFICATIONS).sort();
+  const beginIndex = letters.indexOf(beginLetter);
+  const endIndex = letters.indexOf(endLetter);
+  
+  if (beginIndex === -1 || endIndex === -1) return [];
+  
+  const start = Math.min(beginIndex, endIndex);
+  const end = Math.max(beginIndex, endIndex);
+  
+  return letters.slice(start, end + 1).map(letter => LOC_CLASSIFICATIONS[letter]);
+}
+
 function App() {
   const [layout, setLayout] = useState(LAYOUTS.FULL);
   const [collectionType, setCollectionType] = useState(COLLECTIONS.REGULAR);
   const [collectionText, setCollectionText] = useState("Children's Literature");
   const [regularSubjects, setRegularSubjects] = useState(["Language & literature", "", ""]);
   const [regularSubjectCount, setRegularSubjectCount] = useState(1);
+  const [subjectSizeClass, setSubjectSizeClass] = useState("");
   const [ranges, setRanges] = useState([{ begin: "PN 1995.9 H5 B553", end: "PN 1998 A2 J28 1980" }, { ...defaultRange }, { ...defaultRange }]);
   const [qrTitle1, setQrTitle1] = useState(DEFAULT_QR_1_TITLE);
   const [qrTitle2, setQrTitle2] = useState(DEFAULT_QR_2_TITLE);
@@ -81,11 +132,14 @@ function App() {
         setCollectionText(parsed.collectionText);
       }
       if (Array.isArray(parsed.regularSubjects)) {
-        const nextSubjects = [0, 1, 2].map((index) => (typeof parsed.regularSubjects[index] === "string" ? parsed.regularSubjects[index] : ""));
+        const nextSubjects = parsed.regularSubjects.map((subject) => (typeof subject === "string" ? subject : ""));
         setRegularSubjects(nextSubjects);
       }
-      if (Number.isInteger(parsed.regularSubjectCount) && parsed.regularSubjectCount >= 1 && parsed.regularSubjectCount <= 3) {
+      if (Number.isInteger(parsed.regularSubjectCount) && parsed.regularSubjectCount >= 1) {
         setRegularSubjectCount(parsed.regularSubjectCount);
+      }
+      if (typeof parsed.subjectSizeClass === "string") {
+        setSubjectSizeClass(parsed.subjectSizeClass);
       }
       if (Array.isArray(parsed.ranges)) {
         const nextRanges = [0, 1, 2].map((index) => {
@@ -125,6 +179,7 @@ function App() {
       collectionText,
       regularSubjects,
       regularSubjectCount,
+      subjectSizeClass,
       ranges,
       qrTitle1,
       qrTitle2,
@@ -132,7 +187,39 @@ function App() {
       qrPath2,
     };
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-  }, [layout, collectionType, collectionText, regularSubjects, regularSubjectCount, ranges, qrTitle1, qrTitle2, qrPath1, qrPath2]);
+  }, [layout, collectionType, collectionText, regularSubjects, regularSubjectCount, subjectSizeClass, ranges, qrTitle1, qrTitle2, qrPath1, qrPath2]);
+
+  // Auto-populate subjects based on call number range (only for Full layout + Regular stack)
+  useEffect(() => {
+    if (layout !== LAYOUTS.FULL || collectionType !== COLLECTIONS.REGULAR) {
+      return;
+    }
+
+    const firstRange = ranges[0];
+    if (!firstRange.begin || !firstRange.end) {
+      return;
+    }
+
+    const beginLetter = getCallNumberLetter(firstRange.begin);
+    const endLetter = getCallNumberLetter(firstRange.end);
+
+    if (!beginLetter || !endLetter) {
+      return;
+    }
+
+    const subjects = getSubjectsBetweenLetters(beginLetter, endLetter);
+    
+    if (subjects.length === 0) {
+      return;
+    }
+
+    // Show all subjects in the range
+    const newSubjects = [...subjects, "", "", ""];
+    const newCount = subjects.length;
+
+    setRegularSubjects(newSubjects);
+    setRegularSubjectCount(newCount);
+  }, [layout, collectionType, ranges]);
 
   const isFull = layout === LAYOUTS.FULL;
   const isCurated = collectionType === COLLECTIONS.CURATED;
@@ -166,11 +253,30 @@ function App() {
   }
 
   function handleAddRegularSubjectField() {
-    setRegularSubjectCount((prev) => Math.min(3, prev + 1));
+    setRegularSubjects((prevSubjects) => {
+      const nextCount = regularSubjectCount + 1;
+      if (prevSubjects.length >= nextCount) {
+        return prevSubjects;
+      }
+      return [...prevSubjects, ""];
+    });
+    setRegularSubjectCount((prev) => prev + 1);
   }
 
-  const regularSubjectsForInput = regularSubjects.slice(0, regularSubjectCount);
+  const regularSubjectsForInput = regularSubjects.slice(0, regularSubjectCount).map((subject) => subject || "");
   const regularSubjectsForPreview = regularSubjectsForInput.map((subject) => subject.trim()).filter(Boolean);
+
+  useEffect(() => {
+    const subjectCount = regularSubjectsForPreview.length;
+    let sizeClass = "";
+    if (subjectCount >= 6) {
+      sizeClass = "subjects-small";
+    } else if (subjectCount >= 4) {
+      sizeClass = "subjects-medium";
+    }
+    // 3 or less uses default (normal) size
+    setSubjectSizeClass(sizeClass);
+  }, [regularSubjectsForPreview]);
 
   return (
     <main className="container py-4 signage-root">
@@ -216,11 +322,9 @@ function App() {
                       {regularSubjectsForInput.map((subject, index) => (
                         <input key={`subject-field-${index}`} id={index === 0 ? "collection-text" : `collection-text-${index + 1}`} type="text" className="form-control mb-2" value={subject} onChange={(event) => handleRegularSubjectChange(index, event.target.value)} placeholder={index === 0 ? "e.g., Language & literature" : `Subject ${index + 1}`} />
                       ))}
-                      {regularSubjectCount < 3 && (
-                        <button type="button" className="btn btn-add-subject btn-outline-secondary mt-1" onClick={handleAddRegularSubjectField}>
-                          Add subject
-                        </button>
-                      )}
+                      <button type="button" className="btn btn-add-subject btn-outline-secondary mt-1" onClick={handleAddRegularSubjectField}>
+                        Add subject
+                      </button>
                     </>
                   ) : (
                     <input id="collection-text" type="text" className="form-control" value={collectionText} onChange={(event) => setCollectionText(event.target.value)} placeholder={isCurated ? "e.g., Books That Matter" : "e.g., Science"} />
@@ -306,18 +410,18 @@ function App() {
 
         <section className="col-12 col-lg-7">
           <h2 className="h4 mt-3 mb-4 text-center">Print preview</h2>
-          <PrintPreview isFull={isFull} isCurated={isCurated} collectionText={collectionText} regularSubjectsForPreview={regularSubjectsForPreview} ranges={visibleRanges} qr1Url={buildLibraryUrl(qrPath1)} qr2Url={buildLibraryUrl(qrPath2)} qr1Path={normalizeQrPath(qrPath1)} qr2Path={normalizeQrPath(qrPath2)} qr1Label={qrTitle1 || DEFAULT_QR_1_TITLE} qr2Label={qrTitle2 || DEFAULT_QR_2_TITLE} />
+          <PrintPreview isFull={isFull} isCurated={isCurated} collectionText={collectionText} regularSubjectsForPreview={regularSubjectsForPreview} subjectSizeClass={subjectSizeClass} ranges={visibleRanges} qr1Url={buildLibraryUrl(qrPath1)} qr2Url={buildLibraryUrl(qrPath2)} qr1Path={normalizeQrPath(qrPath1)} qr2Path={normalizeQrPath(qrPath2)} qr1Label={qrTitle1 || DEFAULT_QR_1_TITLE} qr2Label={qrTitle2 || DEFAULT_QR_2_TITLE} />
         </section>
       </div>
 
       <div className="print-only">
-        <PrintPreview isFull={isFull} isCurated={isCurated} collectionText={collectionText} regularSubjectsForPreview={regularSubjectsForPreview} ranges={visibleRanges} qr1Url={buildLibraryUrl(qrPath1)} qr2Url={buildLibraryUrl(qrPath2)} qr1Path={normalizeQrPath(qrPath1)} qr2Path={normalizeQrPath(qrPath2)} qr1Label={qrTitle1 || DEFAULT_QR_1_TITLE} qr2Label={qrTitle2 || DEFAULT_QR_2_TITLE} />
+        <PrintPreview isFull={isFull} isCurated={isCurated} collectionText={collectionText} regularSubjectsForPreview={regularSubjectsForPreview} subjectSizeClass={subjectSizeClass} ranges={visibleRanges} qr1Url={buildLibraryUrl(qrPath1)} qr2Url={buildLibraryUrl(qrPath2)} qr1Path={normalizeQrPath(qrPath1)} qr2Path={normalizeQrPath(qrPath2)} qr1Label={qrTitle1 || DEFAULT_QR_1_TITLE} qr2Label={qrTitle2 || DEFAULT_QR_2_TITLE} />
       </div>
     </main>
   );
 }
 
-function PrintPreview({ isFull, isCurated, collectionText, regularSubjectsForPreview, ranges, qr1Url, qr2Url, qr1Path, qr2Path, qr1Label, qr2Label }) {
+function PrintPreview({ isFull, isCurated, collectionText, regularSubjectsForPreview, subjectSizeClass, ranges, qr1Url, qr2Url, qr1Path, qr2Path, qr1Label, qr2Label }) {
   if (isFull) {
     const fullClass = isCurated ? "full-curated" : "full-regular";
     const beginCall = splitCallNumber(ranges[0].begin || "");
@@ -347,8 +451,8 @@ function PrintPreview({ isFull, isCurated, collectionText, regularSubjectsForPre
 
           {!isCurated && (
             <div className="full-regular-bottom">
-              <div className="full-box full-box-subject">
-                <div className="full-subject-list">
+              <div className={`full-box full-box-subject ${regularSubjectsForPreview.length > 4 ? "full-box-subject-tight" : ""}`}>
+                <div className={`full-subject-list ${subjectSizeClass}`}>
                   {(regularSubjectsForPreview.length > 0 ? regularSubjectsForPreview : ["Subject"]).map((subject, index) => (
                     <p className="full-subject" key={`subject-preview-${index}`}>
                       {subject}
