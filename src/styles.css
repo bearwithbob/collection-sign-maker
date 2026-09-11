@@ -463,3 +463,59 @@ body {
     font-size: calc(12px * var(--print-scale));
   }
 }
+
+/* Figma's 612 × 792 canvas maps to a letter sheet (72 design units/inch). */
+.sign-half {
+  width: min(100%, 612px);
+  aspect-ratio: 612 / 792;
+  margin: 0 auto;
+  container-type: inline-size;
+  --half-border: var(--red);
+}
+
+.half-curated { --half-border: var(--azurite); }
+
+.half-panel {
+  height: 50%;
+  flex: 0 0 50%;
+  padding: calc(100cqw * 16 / 612);
+  box-sizing: border-box;
+  min-height: 0;
+}
+
+.half-frame {
+  height: 100%;
+  border: calc(100cqw * 24 / 612) solid var(--half-border);
+  padding: calc(100cqw * 16 / 612);
+  display: flex;
+  flex-direction: column;
+  gap: calc(100cqw * 16 / 612);
+  box-sizing: border-box;
+}
+
+.half-content {
+  background: var(--gray200);
+  padding: calc(100cqw * 20 / 612) calc(100cqw * 18 / 612);
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.half-collection { padding-top: calc(100cqw * 24 / 612); }
+.half-content .full-collection-title { font-size: calc(100cqw * 42 / 612 * var(--fit, 1)); }
+.half-content .full-collection-note { font-size: calc(100cqw * 28 / 612 * var(--fit, 1)); margin-top: calc(100cqw * 6 / 612); }
+.half-subject-list { display: flex; flex-direction: column; gap: calc(100cqw * var(--subject-gap) / 612 * var(--fit, 1)); }
+.half-subject-list p { font-family: "IBM Plex Serif", Georgia, serif; font-size: calc(100cqw * var(--subject-size) / 612 * var(--fit, 1)); line-height: 1.25; margin: 0; }
+.sign-half .full-link-row { flex: none; margin: 0; gap: calc(100cqw * 16 / 612); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.sign-half .qr-block { min-height: 0; height: calc(100cqw * 82 / 612); padding: calc(100cqw * 12 / 612) calc(100cqw * 14 / 612); gap: calc(100cqw * 10 / 612); box-sizing: border-box; align-items: center; }
+.sign-half .qr-block img { width: calc(100cqw * 58 / 612); height: calc(100cqw * 58 / 612); flex-shrink: 0; }
+.sign-half .full-link-text { min-width: 0; padding: 0; gap: calc(100cqw * 6 / 612); overflow-wrap: anywhere; }
+.sign-half .full-link-title { font-size: calc(100cqw * 13 / 612); line-height: 1.2; margin: 0; }
+.sign-half .full-link-url { font-size: calc(100cqw * 12 / 612); }
+
+@media print {
+  html:has(.signage-half), body:has(.signage-half) { margin: 0 !important; padding: 0 !important; }
+  .signage-root.signage-half { width: 8.5in; max-width: none; margin: 0 !important; padding: 0 !important; }
+  .sign-half { width: 8.5in; height: 11in; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}
