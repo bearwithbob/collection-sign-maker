@@ -91,22 +91,24 @@ function getCallNumberLetter(callNumber) {
 // Get all subjects between two letters (inclusive)
 function getSubjectsBetweenLetters(beginLetter, endLetter) {
   if (!beginLetter || !endLetter) return [];
-  
+
   const letters = Object.keys(LOC_CLASSIFICATIONS).sort();
   const beginIndex = letters.indexOf(beginLetter);
   const endIndex = letters.indexOf(endLetter);
-  
+
   if (beginIndex === -1 || endIndex === -1) return [];
-  
+
   const start = Math.min(beginIndex, endIndex);
   const end = Math.max(beginIndex, endIndex);
-  
-  return letters.slice(start, end + 1).map(letter => LOC_CLASSIFICATIONS[letter]);
+
+  return letters.slice(start, end + 1).map((letter) => LOC_CLASSIFICATIONS[letter]);
 }
 
 function defaultHalfSign() {
   return {
-    layout: "collection", collection: "", subjects: "",
+    layout: "collection",
+    collection: "",
+    subjects: "",
     links: [
       { enabled: true, title: DEFAULT_QR_1_TITLE, path: DEFAULT_QR_1_PATH },
       { enabled: true, title: DEFAULT_QR_2_TITLE, path: DEFAULT_QR_2_PATH },
@@ -114,43 +116,76 @@ function defaultHalfSign() {
   };
 }
 
+function ShortLinkHelp() {
+  return (
+    <p className="callout callout-sky mt-2 mb-4">
+      Contact <a href="mailto:web-support@lib.arizona.edu">Web Support</a> to request a short link that starts with <code>lib.arizona.edu/s/</code>.
+    </p>
+  );
+}
+
 function HalfEditor({ sign, index, isCurated, onChange, range, onRangeChange }) {
   const prefix = `half-${index}`;
-  const includeLinks = sign.links.some(link => link.enabled);
-  return <fieldset className="mb-4">
-    <legend className="h4">{index === 0 ? "Top sign" : "Bottom sign"}</legend>
-    {isCurated && <>
-      <label className="form-label" htmlFor={`${prefix}-layout`}>Display</label>
-      <select id={`${prefix}-layout`} className="form-select mb-3" value={sign.layout} onChange={e => onChange({ ...sign, layout: e.target.value })}>
-        <option value="collection">Collection name</option><option value="subjects">Subjects</option>
-      </select>
-      <label className="form-label" htmlFor={`${prefix}-content`}>{sign.layout === "collection" ? "Collection name" : "Subjects (one per line)"}</label>
-      {sign.layout === "collection"
-        ? <input id={`${prefix}-content`} className="form-control mb-3" value={sign.collection} onChange={e => onChange({ ...sign, collection: e.target.value })} />
-        : <textarea id={`${prefix}-content`} className="form-control mb-3" rows={3} value={sign.subjects} onChange={e => onChange({ ...sign, subjects: e.target.value })} />}
-    </>}
-    {!isCurated && <div className="mb-3">
-      <p>Call number range {index + 1}</p>
-      {["begin", "end"].map(key => <div className="mb-2" key={key}>
-        <label className="form-label" htmlFor={`${prefix}-${key}`}>Call number {key}</label>
-        <input id={`${prefix}-${key}`} className="form-control" value={range[key]} onChange={e => onRangeChange(index, key, e.target.value)} />
-      </div>)}
-    </div>}
-    <div className="form-check mb-3">
-      <input id={`${prefix}-links`} type="checkbox" className="form-check-input" checked={includeLinks} onChange={e => onChange({ ...sign, links: sign.links.map(link => ({ ...link, enabled: e.target.checked })) })} />
-      <label htmlFor={`${prefix}-links`} className="form-check-label">Include links and QR codes</label>
-    </div>
-    {includeLinks && sign.links.map((link, linkIndex) => {
-      const id = `${prefix}-link-${linkIndex}`;
-      const update = patch => onChange({ ...sign, links: sign.links.map((item, i) => i === linkIndex ? { ...item, ...patch } : item) });
-      return <div className="mb-3" key={id}>
-          <label htmlFor={`${id}-title`} className="form-label">Link {linkIndex + 1} title</label>
-          <input id={`${id}-title`} className="form-control mb-2" value={link.title} onChange={e => update({ title: e.target.value })} />
-          <label htmlFor={`${id}-path`} className="form-label">Link {linkIndex + 1} URL</label>
-          <div className="input-group"><span className="input-group-text">lib.arizona.edu/s/</span><input id={`${id}-path`} className="form-control" value={link.path} onChange={e => update({ path: normalizeQrPath(e.target.value) })} /></div>
-      </div>;
-    })}
-  </fieldset>;
+  const includeLinks = sign.links.some((link) => link.enabled);
+  return (
+    <fieldset className="mb-4">
+      <legend className="h4">{index === 0 ? "Top sign" : "Bottom sign"}</legend>
+      {isCurated && (
+        <>
+          <label className="form-label" htmlFor={`${prefix}-layout`}>
+            Display
+          </label>
+          <select id={`${prefix}-layout`} className="form-select mb-3" value={sign.layout} onChange={(e) => onChange({ ...sign, layout: e.target.value })}>
+            <option value="collection">Collection name</option>
+            <option value="subjects">Subjects</option>
+          </select>
+          <label className="form-label" htmlFor={`${prefix}-content`}>
+            {sign.layout === "collection" ? "Collection name" : "Subjects (one per line)"}
+          </label>
+          {sign.layout === "collection" ? <input id={`${prefix}-content`} className="form-control mb-3" value={sign.collection} onChange={(e) => onChange({ ...sign, collection: e.target.value })} /> : <textarea id={`${prefix}-content`} className="form-control mb-3" rows={3} value={sign.subjects} onChange={(e) => onChange({ ...sign, subjects: e.target.value })} />}
+        </>
+      )}
+      {!isCurated && (
+        <div className="mb-3">
+          {["begin", "end"].map((key) => (
+            <div className="mb-2" key={key}>
+              <label className="form-label" htmlFor={`${prefix}-${key}`}>
+                Call number {key}
+              </label>
+              <input id={`${prefix}-${key}`} className="form-control" value={range[key]} onChange={(e) => onRangeChange(index, key, e.target.value)} />
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="form-check mb-3">
+        <input id={`${prefix}-links`} type="checkbox" className="form-check-input" checked={includeLinks} onChange={(e) => onChange({ ...sign, links: sign.links.map((link) => ({ ...link, enabled: e.target.checked })) })} />
+        <label htmlFor={`${prefix}-links`} className="form-check-label">
+          Include links and QR codes
+        </label>
+      </div>
+      {includeLinks && <ShortLinkHelp />}
+      {includeLinks &&
+        sign.links.map((link, linkIndex) => {
+          const id = `${prefix}-link-${linkIndex}`;
+          const update = (patch) => onChange({ ...sign, links: sign.links.map((item, i) => (i === linkIndex ? { ...item, ...patch } : item)) });
+          return (
+            <div className="mb-3" key={id}>
+              <label htmlFor={`${id}-title`} className="form-label">
+                Link {linkIndex + 1} title
+              </label>
+              <input id={`${id}-title`} className="form-control mb-2" value={link.title} onChange={(e) => update({ title: e.target.value })} />
+              <label htmlFor={`${id}-path`} className="form-label">
+                Link {linkIndex + 1} URL
+              </label>
+              <div className="input-group">
+                <span className="input-group-text">lib.arizona.edu/s/</span>
+                <input id={`${id}-path`} className="form-control" value={link.path} onChange={(e) => update({ path: normalizeQrPath(e.target.value) })} />
+              </div>
+            </div>
+          );
+        })}
+    </fieldset>
+  );
 }
 
 // Fit all content, including broad classification ranges, without clipping at print size.
@@ -171,35 +206,67 @@ function HalfContent({ className, children }) {
     const observer = new ResizeObserver(fit);
     observer.observe(element);
     let active = true;
-    document.fonts.ready.then(() => { if (active) fit(); });
-    return () => { active = false; observer.disconnect(); };
+    document.fonts.ready.then(() => {
+      if (active) fit();
+    });
+    return () => {
+      active = false;
+      observer.disconnect();
+    };
   }, [children]);
-  return <div ref={ref} className={className}>{children}</div>;
+  return (
+    <div ref={ref} className={className}>
+      {children}
+    </div>
+  );
 }
 
 function HalfPreview({ signs, ranges, isCurated }) {
-  return <article className={`sign sign-half ${isCurated ? "half-curated" : "half-regular"}`}>
-    {signs.map((sign, index) => {
-      const subjects = isCurated ? sign.subjects.split("\n").map(s => s.trim()).filter(Boolean)
-        : getSubjectsBetweenLetters(getCallNumberLetter(ranges[index].begin), getCallNumberLetter(ranges[index].end));
-      const collection = isCurated && sign.layout === "collection";
-      const links = sign.links.some(link => link.enabled) ? sign.links : [];
-      return <section className="half-panel" key={index} aria-label={index === 0 ? "Top sign" : "Bottom sign"}>
-        <div className="half-frame">
-          <HalfContent className={`half-content ${collection ? "half-collection" : "half-subjects"}`}>
-            {collection ? <><p className="full-collection-title">{sign.collection || "Collection Name"}</p><p className="full-collection-note">Collection</p></>
-              : <div className="half-subject-list" style={{ '--subject-size': `${subjects.length > 6 ? 10 : subjects.length > 3 ? 16 : 28}`, '--subject-gap': subjects.length > 3 ? '4' : '24' }}>
-                {(subjects.length ? subjects : [isCurated ? "Subjects" : "Enter a valid call number range"]).map((subject, i) => <p key={i}>{subject}</p>)}
-              </div>}
-          </HalfContent>
-          {links.length > 0 && <div className="full-link-row">{links.map((link, i) => <QrBlock key={i} url={buildLibraryUrl(link.path)} label={link.title} pathLine={normalizeQrPath(link.path)} />)}</div>}
-        </div>
-      </section>;
-    })}
-  </article>;
+  return (
+    <article className={`sign sign-half ${isCurated ? "half-curated" : "half-regular"}`}>
+      {signs.map((sign, index) => {
+        const subjects = isCurated
+          ? sign.subjects
+              .split("\n")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : getSubjectsBetweenLetters(getCallNumberLetter(ranges[index].begin), getCallNumberLetter(ranges[index].end));
+        const collection = isCurated && sign.layout === "collection";
+        const links = sign.links.some((link) => link.enabled) ? sign.links : [];
+        return (
+          <section className="half-panel" key={index} aria-label={index === 0 ? "Top sign" : "Bottom sign"}>
+            <div className="half-frame">
+              <HalfContent className={`half-content ${collection ? "half-collection" : "half-subjects"}`}>
+                {collection ? (
+                  <>
+                    <p className="full-collection-title">{sign.collection || "Collection Name"}</p>
+                    <p className="full-collection-note">Collection</p>
+                  </>
+                ) : (
+                  <div className="half-subject-list" style={{ "--subject-size": `${subjects.length > 6 ? 10 : subjects.length > 3 ? 16 : 28}`, "--subject-gap": subjects.length > 3 ? "4" : "24" }}>
+                    {(subjects.length ? subjects : [isCurated ? "Subjects" : "Enter a valid call number range"]).map((subject, i) => (
+                      <p key={i}>{subject}</p>
+                    ))}
+                  </div>
+                )}
+              </HalfContent>
+              {links.length > 0 && (
+                <div className="full-link-row">
+                  {links.map((link, i) => (
+                    <QrBlock key={i} url={buildLibraryUrl(link.path)} label={link.title} pathLine={normalizeQrPath(link.path)} />
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+        );
+      })}
+    </article>
+  );
 }
 
 function App() {
+  const [sizeHelpOpen, setSizeHelpOpen] = useState(false);
   const [halfSigns, setHalfSigns] = useState(() => [defaultHalfSign(), defaultHalfSign()]);
   const [layout, setLayout] = useState(LAYOUTS.FULL);
   const [collectionType, setCollectionType] = useState(COLLECTIONS.REGULAR);
@@ -226,21 +293,21 @@ function App() {
         setCollectionType(parsed.collectionType);
       }
       if (Array.isArray(parsed.halfSigns)) {
-        setHalfSigns([0, 1].map(index => {
-          const saved = parsed.halfSigns[index] || {};
-          const defaults = defaultHalfSign();
-          return {
-            layout: saved.layout === "subjects" ? "subjects" : "collection",
-            collection: typeof saved.collection === "string" ? saved.collection : "",
-            subjects: typeof saved.subjects === "string" ? saved.subjects : "",
-            links: defaults.links.map((link, i) => {
-              const value = saved.links?.[i] || {};
-              return { enabled: typeof value.enabled === "boolean" ? value.enabled : true,
-                title: typeof value.title === "string" ? value.title : link.title,
-                path: typeof value.path === "string" ? normalizeQrPath(value.path) : link.path };
-            }),
-          };
-        }));
+        setHalfSigns(
+          [0, 1].map((index) => {
+            const saved = parsed.halfSigns[index] || {};
+            const defaults = defaultHalfSign();
+            return {
+              layout: saved.layout === "subjects" ? "subjects" : "collection",
+              collection: typeof saved.collection === "string" ? saved.collection : "",
+              subjects: typeof saved.subjects === "string" ? saved.subjects : "",
+              links: defaults.links.map((link, i) => {
+                const value = saved.links?.[i] || {};
+                return { enabled: typeof value.enabled === "boolean" ? value.enabled : true, title: typeof value.title === "string" ? value.title : link.title, path: typeof value.path === "string" ? normalizeQrPath(value.path) : link.path };
+              }),
+            };
+          }),
+        );
       }
       if (typeof parsed.collectionText === "string") {
         setCollectionText(parsed.collectionText);
@@ -323,7 +390,7 @@ function App() {
     }
 
     const subjects = getSubjectsBetweenLetters(beginLetter, endLetter);
-    
+
     if (subjects.length === 0) {
       return;
     }
@@ -402,7 +469,7 @@ function App() {
           <div className="card shadow-sm border-0">
             <div className="card-body">
               <h1 className="mt-0 mb-2">Collection sign maker</h1>
-              <p>
+              <p className="callout callout-red">
                 This tool is compatible with <b>Google Chrome</b> on a desktop.
               </p>
               <h2 className="">Layout</h2>
@@ -411,11 +478,42 @@ function App() {
                 <label className="form-label" htmlFor="sign-size">
                   Sign size
                 </label>
-                <select id="sign-size" className="form-select" value={layout} onChange={(event) => setLayout(event.target.value)}>
+                <select id="sign-size" aria-describedby="sign-size-help" className="form-select" value={layout} onChange={(event) => setLayout(event.target.value)}>
                   <option value={LAYOUTS.FULL}>Full</option>
                   <option value={LAYOUTS.HALF}>Half</option>
                   <option value={LAYOUTS.CARD}>Card</option>
                 </select>
+                <div id="sign-size-help" className="accordion mt-2 mb-0">
+                  <div className="accordion-item">
+                    <h5 className="accordion-header mt-0" id="sign-size-help-heading">
+                      <button type="button" className={`accordion-button${sizeHelpOpen ? "" : " collapsed"}`} aria-expanded={sizeHelpOpen} aria-controls="sign-size-help-body" onClick={() => setSizeHelpOpen((open) => !open)}>
+                        {isHalf ? "About the half-size signs" : isFull ? "About the full-size sign" : "About the card-size signs"}
+                      </button>
+                    </h5>
+                    <div id="sign-size-help-body" className={`accordion-collapse collapse${sizeHelpOpen ? " show" : ""}`} hidden={!sizeHelpOpen} role="region" aria-labelledby="sign-size-help-heading">
+                      <div className="accordion-body">
+                        {isHalf ? (
+                          <>
+                            <p>Print two signs on one sheet.</p>
+                            <p>For <strong>regular collections</strong>, enter a call number range for each sign. The tool will look up its subjects.</p>
+                            <p className="mb-0">For <strong>curated collections</strong>, choose to manually enter a collection title or a list of subjects.</p>
+                          </>
+                        ) : isFull ? (
+                          <>
+                            <p>Print one sign per page that includes a call number range.</p>
+                            <p className="mb-0">For <strong>regular stacks</strong>, the tool will automatically look up the subject(s). For <strong>curated collections</strong>, manually include the collection name.</p>
+                          </>
+                        ) : (
+                          <>
+                            <p>Print out three signs per page to be inserted in the sign holder at the top of the stack-end. Each includes a call number range.</p>
+                            <p>For <strong>regular stacks</strong>, the tool will automatically look up the subject(s). For <strong>curated collections</strong>, manually include the collection name.</p>
+                            <p className="mb-0">Print the signs on an Avery 5388 index card template.</p>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="mb-4">
@@ -430,8 +528,7 @@ function App() {
 
               <h2 className="">Collection information</h2>
 
-              {isHalf && <p>Two half-size signs on one letter-size sheet. {isCurated ? "Choose the display and content for each sign independently." : "Enter one call number range per sign to look up its subjects."}</p>}
-              {isHalf && halfSigns.map((sign, index) => <HalfEditor key={index} sign={sign} index={index} isCurated={isCurated} range={ranges[index]} onRangeChange={handleRangeChange} onChange={next => setHalfSigns(previous => previous.map((item, i) => i === index ? next : item))} />)}
+              {isHalf && halfSigns.map((sign, index) => <HalfEditor key={index} sign={sign} index={index} isCurated={isCurated} range={ranges[index]} onRangeChange={handleRangeChange} onChange={(next) => setHalfSigns((previous) => previous.map((item, i) => (i === index ? next : item)))} />)}
               {showCollectionField && (
                 <div className="mb-3">
                   <label className="form-label" htmlFor="collection-text">
@@ -475,9 +572,7 @@ function App() {
               {isFull && (
                 <>
                   <h2 className="mb-2">Links</h2>
-                  <p className="mb-4">
-                    Contact <a href="web-support@lib.arizona.edu">Web Support</a> to request a short link that starts with <code>lib.arizona.edu/s/</code>.
-                  </p>
+                  <ShortLinkHelp />
                   <div className="mb-3">
                     <label className="form-label" htmlFor="qr-1-title">
                       Link 1 title
@@ -517,8 +612,8 @@ function App() {
                   </div>
                 </>
               )}
-              <h2 className="mb-2">Ready to print?</h2>
-              <p className="mb-4">
+              <h2>Ready to print?</h2>
+              <p className="callout callout-red mb-4">
                 In the print window, make sure the <b>Background graphics</b> option is checked.
               </p>
               <button type="button" className="btn btn-red w-100" onClick={handlePrint}>
