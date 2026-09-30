@@ -494,19 +494,27 @@ function App() {
                       <div className="accordion-body">
                         {isHalf ? (
                           <>
-                            <p>Print two signs on one sheet.</p>
-                            <p>For <strong>regular collections</strong>, enter a call number range for each sign. The tool will look up its subjects.</p>
-                            <p className="mb-0">For <strong>curated collections</strong>, choose to manually enter a collection title or a list of subjects.</p>
+                            <p>Print two signs on one sheet. Ideal for compact shelving, microforms, and sign holders.</p>
+                            <p>
+                              For <strong>regular collections</strong>, enter a call number range for each sign. The tool will look up its subjects.
+                            </p>
+                            <p className="mb-0">
+                              For <strong>curated collections</strong>, choose to manually enter a collection title or a list of subjects.
+                            </p>
                           </>
                         ) : isFull ? (
                           <>
                             <p>Print one sign per page that includes a call number range.</p>
-                            <p className="mb-0">For <strong>regular stacks</strong>, the tool will automatically look up the subject(s). For <strong>curated collections</strong>, manually include the collection name.</p>
+                            <p className="mb-0">
+                              For <strong>regular stacks</strong>, the tool will automatically look up the subject(s). For <strong>curated collections</strong>, manually include the collection name.
+                            </p>
                           </>
                         ) : (
                           <>
                             <p>Print out three signs per page to be inserted in the sign holder at the top of the stack-end. Each includes a call number range.</p>
-                            <p>For <strong>regular stacks</strong>, the tool will automatically look up the subject(s). For <strong>curated collections</strong>, manually include the collection name.</p>
+                            <p>
+                              For <strong>regular stacks</strong>, the tool will automatically look up the subject(s). For <strong>curated collections</strong>, manually include the collection name.
+                            </p>
                             <p className="mb-0">Print the signs on an Avery 5388 index card template.</p>
                           </>
                         )}
